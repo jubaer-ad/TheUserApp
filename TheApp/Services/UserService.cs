@@ -133,5 +133,20 @@ namespace TheApp.Services
                 throw;
             }
         }
+
+        public async Task<string> Login(LoginReq loginReq)
+        {
+            try
+            {
+                var userInDB = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == loginReq.Email && u.IsRemoved == false);
+                if (userInDB == null) return null;
+                if (!BCrypt.Net.BCrypt.Verify(loginReq.Password, userInDB.PasswordHash)) return "Email or password is wrong";
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
     }
 }

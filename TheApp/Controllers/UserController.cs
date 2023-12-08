@@ -146,5 +146,19 @@ namespace TheApp.Controllers
                 throw;
             }
         }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(LoginReq loginReq)
+        {
+            try
+            {
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
     }
 }
