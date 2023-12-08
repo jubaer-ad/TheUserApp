@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
 using TheApp.Model;
 using TheApp.Services;
 
@@ -26,19 +27,20 @@ namespace TheApp.Controllers
             }
         }
 
-        //[HttpGet("user")]
-        //public Task<IActionResult> GetUser(User user)
-        //{
-        //    try
-        //    {
+        [HttpGet("user")]
+        public async Task<IActionResult> GetUser(Guid id)
+        {
+            try
+            {
+                var res = await _userService.GetUserByIdAsync(id);
+                return Ok(res);
+            }
+            catch (Exception)
+            {
 
-        //    }
-        //    catch (Exception)
-        //    {
-
-        //        throw;
-        //    }
-        //}
+                throw;
+            }
+        }
 
         [HttpGet("users")]
         public async Task<IActionResult> GetUsers()
@@ -55,32 +57,32 @@ namespace TheApp.Controllers
             }
         }
 
-        //[HttpDelete]
-        //public Task<IActionResult> DeleteUser(User user)
-        //{
-        //    try
-        //    {
+        [HttpDelete]
+        public Task<IActionResult> DeleteUser(User user)
+        {
+            try
+            {
+                throw new NotImplementedException();
+            }
+            catch (Exception)
+            {
 
-        //    }
-        //    catch (Exception)
-        //    {
+                throw;
+            }
+        }
 
-        //        throw;
-        //    }
-        //}
+        [HttpPut]
+        public Task<IActionResult> EditUser(User user)
+        {
+            try
+            {
+                throw new NotImplementedException();
+            }
+            catch (Exception)
+            {
 
-        //[HttpPut]
-        //public Task<IActionResult> EditUser(User user)
-        //{
-        //    try
-        //    {
-
-        //    }
-        //    catch (Exception)
-        //    {
-
-        //        throw;
-        //    }
-        //}
+                throw;
+            }
+        }
     }
 }

@@ -1,11 +1,12 @@
 ﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using System.ComponentModel.DataAnnotations;
 
 namespace TheApp.Model
 {
     public class Base
     {
-        public ObjectId? Id { get; set; }
+        public Guid Id { get; set; }
         [Required(ErrorMessage = "First name is required")]
         public string FirstName { get; set; }
 

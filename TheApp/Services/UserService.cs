@@ -19,7 +19,7 @@ namespace TheApp.Services
                 {
                     return null;
                 }
-
+                newUser.Id = Guid.NewGuid();
                 var addRes = await _dbContext.Users.AddAsync(newUser);
                 _dbContext.ChangeTracker.DetectChanges();
                 Console.WriteLine(_dbContext.ChangeTracker.DebugView.LongView);
@@ -111,7 +111,7 @@ namespace TheApp.Services
             }
         }
 
-        public async Task<User?> GetUserByIdAsync(ObjectId id)
+        public async Task<User?> GetUserByIdAsync(Guid id)
         {
             try
             {
