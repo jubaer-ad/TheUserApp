@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using MongoDB.Bson;
+﻿using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson.IO;
 using System.Net;
 using TheApp.Model;
 using TheApp.Services;
+using Newtonsoft.Json;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TheApp.Controllers
 {
@@ -71,6 +72,7 @@ namespace TheApp.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet("users")]
         public async Task<IActionResult> GetUsers()
         {
@@ -91,6 +93,7 @@ namespace TheApp.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(Guid id)
         {
@@ -119,6 +122,7 @@ namespace TheApp.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut]
         public async Task<IActionResult> EditUser(UserDto user)
         {
@@ -152,7 +156,8 @@ namespace TheApp.Controllers
         {
             try
             {
-
+                var res = await _userService.LoginAsync(loginReq);
+                return StatusCode((int)res.StatusCode, Newtonsoft.Json.JsonConvert.SerializeObject(res));
             }
             catch (Exception)
             {

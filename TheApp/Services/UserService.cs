@@ -1,14 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MongoDB.Bson;
-using System.Linq;
 using TheApp.Model;
 using TheApp.SystemDbContext;
+using TheApp.Helper;
+using System.Net;
 
 namespace TheApp.Services
 {
-    public class UserService(SystemDbContextClass dbContext) : IUserService
+    public class UserService(SystemDbContextClass dbContext, IConfiguration configuration) : IUserService
     {
         private readonly SystemDbContextClass _dbContext = dbContext;
+        private readonly IConfiguration _configuration = configuration;
 
         public async Task<UserDto> AddUserAsync(User newUser)
         {
@@ -134,13 +135,30 @@ namespace TheApp.Services
             }
         }
 
-        public async Task<string> Login(LoginReq loginReq)
+        public async Task<dynamic> LoginAsync(LoginReq loginReq)
         {
             try
             {
                 var userInDB = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == loginReq.Email && u.IsRemoved == false);
-                if (userInDB == null) return null;
-                if (!BCrypt.Net.BCrypt.Verify(loginReq.Password, userInDB.PasswordHash)) return "Email or password is wrong";
+                if (userInDB == null || !BCrypt.Net.BCrypt.Verify(loginReq.Password, userInDB.PasswordHash)) return new StandardApiResponse()
+                {
+                    IsSuccess = false,
+                    Message = "Email or password is wrong",
+                    StatusCode = HttpStatusCode.BadRequest
+                };
+                var symmetricSecurityKey = _configuration.GetSection("SymmetricSecurityKey").Value ?? "";
+                var jwtToken = JWTHelper.GenerateJWT(userInDB, symmetricSecurityKey);
+                return new StandardApiResponse()
+                {
+                    IsSuccess = true,
+                    Message = "Login Success",
+                    StatusCode = HttpStatusCode.OK,
+                    Data = new
+                    {
+                        BearerToken = jwtToken,
+                        UserData = userInDB
+                    }
+                };
             }
             catch (Exception)
             {

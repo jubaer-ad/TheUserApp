@@ -13,7 +13,7 @@ namespace TheApp.Services
         Task<UserDto> EditUserAsync(UserDto updatedUser);
 
         UserDto DeleteUserAsync(Guid id);
-        Task<string> Login(LoginReq loginReq);
+        Task<dynamic> LoginAsync(LoginReq loginReq);
 
     }
 }
