@@ -6,7 +6,9 @@ namespace TheApp.Model
     [Collection("Users")]
     public class UserDto : Base
     {
-        public required string PasswordHash { get; set; }
+        public Guid Id { get; set; }
+        public string? PasswordHash { get; set; }
+        public bool IsRemoved { get; set; } = false;
         public static implicit operator User?(UserDto userDto)
         {
             if(userDto == null)
@@ -15,12 +17,10 @@ namespace TheApp.Model
             }
             return new()
             {
-                Id = userDto.Id,
                 Email = userDto.Email,
                 Password = string.Empty,
                 FirstName = userDto.FirstName,
                 LastName = userDto.LastName,
-                IsRemoved = userDto.IsRemoved,
                 Phone = userDto.Phone,
                 Role = userDto.Role
             };

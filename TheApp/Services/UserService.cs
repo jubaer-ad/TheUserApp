@@ -10,7 +10,7 @@ namespace TheApp.Services
     {
         private readonly SystemDbContextClass _dbContext = dbContext;
 
-        public async Task<User> AddUserAsync(User newUser)
+        public async Task<UserDto> AddUserAsync(User newUser)
         {
             try
             {
@@ -19,8 +19,9 @@ namespace TheApp.Services
                 {
                     return null;
                 }
-                newUser.Id = Guid.NewGuid();
-                var addRes = await _dbContext.Users.AddAsync(newUser);
+                UserDto dto = newUser;
+                dto.Id = Guid.NewGuid();
+                var addRes = await _dbContext.Users.AddAsync(dto);
                 _dbContext.ChangeTracker.DetectChanges();
                 Console.WriteLine(_dbContext.ChangeTracker.DebugView.LongView);
                 await _dbContext.SaveChangesAsync();
@@ -33,28 +34,27 @@ namespace TheApp.Services
             }
         }
 
-        public void DeleteUserAsync(UserDto userDelete)
+        public UserDto DeleteUserAsync(Guid id)
         {
             try
             {
-                var userToDelete = _dbContext.Users.FirstOrDefault(u => u.Id == userDelete.Id);
-
-                if (userToDelete != null)
-                {
-                    userToDelete = userDelete;
-                    userToDelete.IsRemoved = true;
-
-                    _dbContext.Users.Update(userToDelete);
-
-                    _dbContext.ChangeTracker.DetectChanges();
-                    Console.WriteLine(_dbContext.ChangeTracker.DebugView.LongView);
-
-                    _dbContext.SaveChanges();
-                }
-                else
+                var userToDelete = _dbContext.Users.FirstOrDefault(u => u.Id == id && u.IsRemoved == false);
+                if (userToDelete == null)
                 {
                     throw new ArgumentException("User not found to delete");
                 }
+
+                userToDelete.IsRemoved = true;
+
+                _dbContext.Users.Update(userToDelete);
+
+                _dbContext.ChangeTracker.DetectChanges();
+                Console.WriteLine(_dbContext.ChangeTracker.DebugView.LongView);
+
+                _dbContext.SaveChanges();
+
+                return userToDelete;
+
             }
             catch (Exception)
             {
@@ -63,15 +63,24 @@ namespace TheApp.Services
             }
         }
 
-        public void EditUserAsync(UserDto updatedUser)
+        public async Task<UserDto> EditUserAsync(UserDto updatedUser)
         {
             try
             {
-                var userToUpdate = _dbContext.Users.FirstOrDefault(u => u.Id == updatedUser.Id);
+                var res = _dbContext.Users.FirstOrDefault(x => x.Email == updatedUser.Email && x.IsRemoved == false);
+                if (res != null)
+                {
+                    return null;
+                }
+                var userToUpdate = _dbContext.Users.FirstOrDefault(u => u.Id == updatedUser.Id && u.IsRemoved == false);
 
                 if (userToUpdate != null)
                 {
-                    userToUpdate = updatedUser;
+                    userToUpdate.FirstName = updatedUser.FirstName;
+                    userToUpdate.LastName = updatedUser.LastName;
+                    userToUpdate.Email = updatedUser.Email;
+                    userToUpdate.Phone = updatedUser.Phone;
+                    userToUpdate.Role = updatedUser.Role;
 
                     _dbContext.Users.Update(userToUpdate);
 
@@ -79,6 +88,8 @@ namespace TheApp.Services
                     Console.WriteLine(_dbContext.ChangeTracker.DebugView.LongView);
 
                     _dbContext.SaveChanges();
+
+                    return await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == updatedUser.Email && u.IsRemoved == false);
                 }
                 else
                 {
@@ -92,17 +103,16 @@ namespace TheApp.Services
             }
         }
 
-        public async Task<IEnumerable<User>> GetAllUsersAsync()
+        public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
         {
             try
             {
-                List<User> users = new();
-                var res = _dbContext.Users.OrderBy(u => u.Id).AsNoTracking().AsEnumerable().ToList();
+                var res = _dbContext.Users.Where(u => u.IsRemoved == false).OrderBy(u => u.Id).AsNoTracking().AsEnumerable().ToList();
                 foreach(var userDto in res)
                 {
-                    users.Add(userDto);
+                    userDto.PasswordHash = string.Empty;
                 }
-                return users;
+                return res;
             }
             catch (Exception)
             {
@@ -111,11 +121,11 @@ namespace TheApp.Services
             }
         }
 
-        public async Task<User?> GetUserByIdAsync(Guid id)
+        public async Task<UserDto?> GetUserByIdAsync(Guid id)
         {
             try
             {
-                return await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
+                return await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == id && u.IsRemoved == false);
             }
             catch (Exception)
             {

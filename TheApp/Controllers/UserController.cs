@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
+using System.Net;
 using TheApp.Model;
 using TheApp.Services;
 
@@ -18,7 +19,21 @@ namespace TheApp.Controllers
             try
             {
                 var res = await _userService.AddUserAsync(user);
-                return Ok(res);
+                if (res != null)
+                {
+                    return Ok(new StandardApiResponse()
+                    {
+                        Data = res,
+                        IsSuccess = true,
+                        StatusCode = HttpStatusCode.OK
+                    });
+                }
+                return Ok(new StandardApiResponse()
+                {
+                    IsSuccess = false,
+                    StatusCode = HttpStatusCode.BadRequest,
+                    Message = "User already is the DB"
+                });
             }
             catch (Exception)
             {
@@ -27,13 +42,27 @@ namespace TheApp.Controllers
             }
         }
 
-        [HttpGet("user")]
+        [HttpGet]
         public async Task<IActionResult> GetUser(Guid id)
         {
             try
             {
                 var res = await _userService.GetUserByIdAsync(id);
-                return Ok(res);
+                if (res != null)
+                {
+                    return Ok(new StandardApiResponse()
+                    {
+                        Data = res,
+                        IsSuccess = true,
+                        StatusCode = HttpStatusCode.OK
+                    });
+                }
+                return Ok(new StandardApiResponse()
+                {
+                    IsSuccess = false,
+                    StatusCode = HttpStatusCode.BadRequest,
+                    Message = "User not found"
+                });
             }
             catch (Exception)
             {
@@ -48,7 +77,12 @@ namespace TheApp.Controllers
             try
             {
                 var res = await _userService.GetAllUsersAsync();
-                return Ok(res);
+                return Ok(new StandardApiResponse()
+                {
+                    Data = res,
+                    IsSuccess = true,
+                    StatusCode = HttpStatusCode.OK
+                });
             }
             catch (Exception)
             {
@@ -57,12 +91,26 @@ namespace TheApp.Controllers
             }
         }
 
-        [HttpDelete]
-        public Task<IActionResult> DeleteUser(User user)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUser(Guid id)
         {
             try
             {
-                throw new NotImplementedException();
+                var res = _userService.DeleteUserAsync(id);
+                if (res != null)
+                {
+                    return Ok(new StandardApiResponse()
+                    {
+                        Data = res,
+                        IsSuccess = true,
+                        StatusCode = HttpStatusCode.OK
+                    });
+                }
+                return Ok(new StandardApiResponse()
+                {
+                    IsSuccess = false,
+                    StatusCode = HttpStatusCode.BadRequest
+                });
             }
             catch (Exception)
             {
@@ -72,11 +120,25 @@ namespace TheApp.Controllers
         }
 
         [HttpPut]
-        public Task<IActionResult> EditUser(User user)
+        public async Task<IActionResult> EditUser(UserDto user)
         {
             try
             {
-                throw new NotImplementedException();
+                var res = await _userService.EditUserAsync(user);
+                if (res != null)
+                {
+                    return Ok(new StandardApiResponse()
+                    {
+                        Data = res,
+                        IsSuccess = true,
+                        StatusCode = HttpStatusCode.OK
+                    });
+                }
+                return Ok(new StandardApiResponse()
+                {
+                    IsSuccess = false,
+                    StatusCode = HttpStatusCode.BadRequest
+                });
             }
             catch (Exception)
             {

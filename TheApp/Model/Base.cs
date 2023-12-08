@@ -6,7 +6,6 @@ namespace TheApp.Model
 {
     public class Base
     {
-        public Guid Id { get; set; }
         [Required(ErrorMessage = "First name is required")]
         public string FirstName { get; set; }
 
@@ -19,6 +18,5 @@ namespace TheApp.Model
         [Required(ErrorMessage = "Email is required")]
         public string Email { get; set; }
         public Role Role { get; set; }
-        public bool IsRemoved { get; set; } = false;
     }
 }

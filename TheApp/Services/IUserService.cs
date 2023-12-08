@@ -5,13 +5,13 @@ namespace TheApp.Services
 {
     public interface IUserService
     {
-        Task<IEnumerable<User>> GetAllUsersAsync();
-        Task<User?> GetUserByIdAsync(Guid id);
+        Task<IEnumerable<UserDto>> GetAllUsersAsync();
+        Task<UserDto?> GetUserByIdAsync(Guid id);
 
-        Task<User> AddUserAsync(User newUser);
+        Task<UserDto> AddUserAsync(User newUser);
 
-        void EditUserAsync(UserDto updatedUser);
+        Task<UserDto> EditUserAsync(UserDto updatedUser);
 
-        void DeleteUserAsync(UserDto UserToDelete);
+        UserDto DeleteUserAsync(Guid id);
     }
 }

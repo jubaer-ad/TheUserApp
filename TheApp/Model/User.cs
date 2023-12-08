@@ -17,12 +17,10 @@ namespace TheApp.Model
             }
             return new()
             {
-                Id = user.Id,
                 Email = user.Email,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.Password),
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                IsRemoved = user.IsRemoved,
                 Phone = user.Phone,
                 Role = user.Role
             };
